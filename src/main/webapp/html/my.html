@@ -1,12 +1,97 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>RPG</title>
-    <script src=https://code.jquery.com/jquery-3.6.0.min.js></script>
-    <link href="/css/my.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="css/my.css" rel="stylesheet">
 </head>
 <body>
 <h1>RPG admin panel</h1>
 <h2>Accounts list:</h2>
 
+<!-- Таблица игроков -->
+<table id="playersTable">
+    <thead>
+    <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Title</th>
+        <th>Race</th>
+        <th>Profession</th>
+        <th>Level</th>
+        <th>Birthday</th>
+        <th>Banned</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<!-- Форма создания игрока -->
+<h2>Create new player:</h2>
+<form id="createPlayerForm">
+    <label>Name: <input type="text" name="name" required maxlength="12"></label><br>
+    <label>Title: <input type="text" name="title" maxlength="30"></label><br>
+    <label>Race:
+        <select name="race" required>
+            <option value="HUMAN">Human</option>
+            <option value="DWARF">Dwarf</option>
+            <option value="ELF">Elf</option>
+            <option value="ORC">Orc</option>
+            <option value="TROLL">Troll</option>
+            <option value="HOBBIT">Hobbit</option>
+            <option value="GIANT">Giant</option>
+        </select>
+    </label><br>
+    <label>Profession:
+        <select name="profession" required>
+            <option value="WARRIOR">Warrior</option>
+            <option value="ROGUE">Rogue</option>
+            <option value="SORCERER">Sorcerer</option>
+            <option value="CLERIC">Cleric</option>
+            <option value="PALADIN">Paladin</option>
+            <option value="DRUID">Druid</option>
+            <option value="WARLOCK">Warlock</option>
+            <option value="NAZGUL">Nazgul</option>
+        </select>
+    </label><br>
+    <label>Level: <input type="number" name="level" min="0" max="100" required></label><br>
+    <label>Birthday: <input type="date" name="birthday" required></label><br>
+    <label>Banned: <input type="checkbox" name="banned"></label><br>
+    <button type="submit">Create</button>
+</form>
+
+<script>
+    function loadPlayers() {
+        const basePath = window.location.pathname.split("/")[1];
+        $.get(`/${basePath}/rest/players?pageNumber=0&pageSize=50`, function(players) {
+            const tbody = $("#playersTable tbody");
+            tbody.empty();
+
+            players.forEach((player, index) => {
+                const birthday = new Date(player.birthday).toLocaleDateString();
+                const banned = player.banned ? "Yes" : "No";
+
+                const row = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${player.name}</td>
+                        <td>${player.title}</td>
+                        <td>${player.race}</td>
+                        <td>${player.profession}</td>
+                        <td>${player.level}</td>
+                        <td>${birthday}</td>
+                        <td>${banned}</td>
+                    </tr>
+                `;
+                tbody.append(row);
+            });
+        }).fail(function() {
+            alert("Load data error. Check the path to /rest/players.");
+        });
+    }
+
+    $(document).ready(loadPlayers);
+</script>
 </body>
 </html>
