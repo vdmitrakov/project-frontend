@@ -62,9 +62,10 @@
 </form>
 
 <script>
+    const API_URL = "http://localhost:8080/rest/players";
+
     function loadPlayers() {
-        const basePath = window.location.pathname.split("/")[1];
-        $.get(`/${basePath}/rest/players?pageNumber=0&pageSize=50`, function(players) {
+        $.get(`${API_URL}?pageNumber=0&pageSize=50`, function(players) {
             const tbody = $("#playersTable tbody");
             tbody.empty();
 
@@ -90,6 +91,36 @@
             alert("Load data error. Check the path to /rest/players.");
         });
     }
+
+    // Обработчик формы создания нового игрока
+    $("#createPlayerForm").submit(function(event) {
+        event.preventDefault();
+
+        const playerData = {
+            name: $(this).find("input[name='name']").val(),
+            title: $(this).find("input[name='title']").val(),
+            race: $(this).find("select[name='race']").val(),
+            profession: $(this).find("select[name='profession']").val(),
+            level: parseInt($(this).find("input[name='level']").val()),
+            birthday: new Date($(this).find("input[name='birthday']").val()).getTime(),
+            banned: $(this).find("input[name='banned']").is(":checked")
+        };
+
+        $.ajax({
+            url: API_URL,
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(playerData),
+            success: function() {
+                alert("Player created successfully!");
+                loadPlayers();
+                $("#createPlayerForm")[0].reset();
+            },
+            error: function() {
+                alert("Error creating player. Check data or server logs.");
+            }
+        });
+    });
 
     $(document).ready(loadPlayers);
 </script>
