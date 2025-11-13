@@ -1,8 +1,10 @@
+/* General layout */
 body {
     font-family: Arial, sans-serif;
     margin: 20px;
 }
 
+/* Table styling */
 table {
     border-collapse: collapse;
     width: 100%;
@@ -18,11 +20,70 @@ th {
     background-color: #f2f2f2;
 }
 
+/* Pagination controls */
+#paginationControls {
+    margin-top: 10px;
+}
+
+#paginationControls button {
+    margin: 2px;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+
+#paginationControls button:hover {
+    background-color: #ddd;
+}
+
+#paginationControls .active {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+}
+
+/* Form styling */
 form {
     margin-top: 20px;
 }
 
-form label {
-    display: block;
-    margin-bottom: 10px;
+#createPlayerForm table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#createPlayerForm td {
+    border: none;
+    padding: 8px;
+    vertical-align: top;
+    text-align: left;
+}
+
+#createPlayerForm td:first-child {
+    width: 20%;
+}
+
+#createPlayerForm td:last-child {
+    width: 80%;
+}
+
+#createPlayerForm input,
+#createPlayerForm select {
+    width: 250px;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+#createPlayerForm button {
+    float: left;
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#createPlayerForm button:hover {
+    background-color: #0056b3;
 }

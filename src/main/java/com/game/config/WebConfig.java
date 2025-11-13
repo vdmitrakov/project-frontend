@@ -19,6 +19,9 @@ import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 import org.thymeleaf.templatemode.TemplateMode;
 
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
 import java.util.List;
 
 @Configuration
@@ -49,6 +52,9 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         registry.addResourceHandler("/html/**").addResourceLocations("/html/");
         registry.addResourceHandler("/css/**").addResourceLocations("/css/");
         registry.addResourceHandler("/img/**").addResourceLocations("/img/");
+        registry
+                .addResourceHandler("/**")
+                .addResourceLocations("/"); // обслуживает всё из webapp/
     }
 
     @Bean
@@ -61,14 +67,24 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         templateResolver.setCacheable(false);
         return templateResolver;
     }
-
+/*
     @Bean
     public SpringTemplateEngine templateEngine() {
         SpringTemplateEngine templateEngine = new SpringTemplateEngine();
         templateEngine.setTemplateResolver(templateResolver());
         templateEngine.setEnableSpringELCompiler(false);
         return templateEngine;
+    }*/
+
+    @Bean
+    public SpringTemplateEngine templateEngine() {
+        SpringTemplateEngine templateEngine = new SpringTemplateEngine();
+        templateEngine.setTemplateResolver(templateResolver());
+        templateEngine.setEnableSpringELCompiler(true); // включаем компилятор выражений Spring EL
+        templateEngine.setTemplateEngineMessageSource(applicationContext); // подключаем контекст для сообщений (если нужно)
+        return templateEngine;
     }
+
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
@@ -77,4 +93,10 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         converter.getObjectMapper().setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         converters.add(converter);
     }
+
+
+
+
 }
+
+

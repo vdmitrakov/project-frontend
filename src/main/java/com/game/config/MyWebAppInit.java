@@ -5,7 +5,19 @@ import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatche
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
+import javax.servlet.Filter;
+import org.springframework.web.filter.CharacterEncodingFilter;
+
+
 public class MyWebAppInit extends AbstractAnnotationConfigDispatcherServletInitializer {
+    @Override
+    protected Filter[] getServletFilters() {
+        CharacterEncodingFilter encodingFilter = new CharacterEncodingFilter();
+        encodingFilter.setEncoding("UTF-8");
+        encodingFilter.setForceEncoding(true);
+        return new Filter[] { encodingFilter };
+    }
+
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
