@@ -25,6 +25,8 @@ function loadPlayers(page = 0) {
     currentPage = page;
     pageSize = parseInt($("#pageSizeSelect").val());
 
+
+
     $.get(`${API_URL}?pageNumber=${currentPage}&pageSize=${pageSize}`, function(players) {
         const tbody = $("#playersTable tbody");
         tbody.empty();
@@ -35,19 +37,26 @@ function loadPlayers(page = 0) {
         }
 
         players.forEach((player, index) => {
-            const birthday = new Date(player.birthday).toLocaleDateString();
+           // const birthday = new Date(player.birthday).toLocaleDateString();
             const banned = player.banned ? "Yes" : "No";
 
+            const birthdayDate = new Date(player.birthday);
+            const birthdayFormatted = birthdayDate.toLocaleDateString("ru-RU"); // или en-GB, если нужно
+            const birthdayISO = birthdayDate.toISOString().split("T")[0]; // yyyy-mm-dd
+
+
             const row = `
-                <tr>
+                <tr data-id="${player.id}">
                     <td>${index + 1 + page * pageSize}</td>
-                    <td>${player.name}</td>
-                    <td>${player.title}</td>
-                    <td>${player.race}</td>
-                    <td>${player.profession}</td>
-                    <td>${player.level}</td>
-                    <td>${birthday}</td>
-                    <td>${banned}</td>
+                    <td class="cell-name">${player.name}</td>
+                    <td class="cell-title">${player.title}</td>
+                    <td class="cell-race">${player.race}</td>
+                    <td class="cell-profession">${player.profession}</td>
+                    <td class="cell-level">${player.level}</td>
+                    <td class="cell-birthday" data-raw="${birthdayISO}">${birthdayFormatted}</td>
+                    <td class="cell-banned">${banned}</td>
+                    <td><img src="/img/edit.png" class="edit-btn" data-id="${player.id}" style="cursor:pointer;"></td>
+                    <td><img src="/img/delete.png" class="delete-btn" data-id="${player.id}" style="cursor:pointer;"></td>    
                 </tr>
             `;
             tbody.append(row);
@@ -58,6 +67,7 @@ function loadPlayers(page = 0) {
         alert("Failed to load players. Please check the /rest/players endpoint.");
     });
 }
+
 
 function renderPagination() {
     const totalPages = Math.ceil(totalPlayers / pageSize);
@@ -119,3 +129,124 @@ $(document).ready(function() {
         loadPlayers();
     });
 });
+
+function deletePlayer(id) {
+    $.ajax({
+        url: `${API_URL}/${id}`,
+        type: "DELETE",
+        success: function() {
+            alert(`Player with ID ${id} deleted successfully.`);
+            fetchTotalPlayersCount().then(count => {
+                totalPlayers = count;
+                loadPlayers(currentPage);
+            });
+        },
+        error: function() {
+            alert(`Failed to delete player with ID ${id}.`);
+        }
+    });
+}
+
+$(document).on("click", ".delete-btn", function() {
+    const id = $(this).data("id");
+    deletePlayer(id);
+});
+
+
+//--------------Редагування----------
+$(document).on("click", ".edit-btn", function () {
+    const row = $(this).closest("tr");
+    const id = row.data("id");
+
+    // Скрыть кнопку Delete
+    row.find(".delete-btn").hide();
+
+    // Заменить Edit на Save
+    $(this).attr("src", "/img/save.png").removeClass("edit-btn").addClass("save-btn");
+
+    // Получить текущие значения
+    const name = row.find(".cell-name").text().trim();
+    const title = row.find(".cell-title").text().trim();
+    const race = row.find(".cell-race").text().trim();
+    const profession = row.find(".cell-profession").text().trim();
+    const level = row.find(".cell-level").text().trim();
+    const birthdayRaw = row.find(".cell-birthday").data("raw"); // ISO-строка yyyy-mm-dd
+    const banned = row.find(".cell-banned").text().trim() === "Yes";
+
+    // Заменить ячейки на поля ввода
+    row.find(".cell-name").html(`<input type="text" class="edit-name" value="${name}" maxlength="12">`);
+    row.find(".cell-title").html(`<input type="text" class="edit-title" value="${title}" maxlength="30">`);
+    row.find(".cell-level").html(`<input type="number" class="edit-level" value="${level}" min="0" max="100">`);
+    row.find(".cell-birthday").html(`<input type="date" class="edit-birthday" value="${birthdayRaw || ''}">`);
+
+    const raceOptions = ["HUMAN", "DWARF", "ELF", "ORC", "TROLL", "HOBBIT", "GIANT"];
+    const raceSelect = $("<select>").addClass("edit-race");
+    raceOptions.forEach(opt => {
+        raceSelect.append(`<option value="${opt}" ${opt === race ? "selected" : ""}>${opt}</option>`);
+    });
+    row.find(".cell-race").html(raceSelect);
+
+    const profOptions = ["WARRIOR", "ROGUE", "SORCERER", "CLERIC", "PALADIN", "DRUID", "WARLOCK", "NAZGUL"];
+    const profSelect = $("<select>").addClass("edit-profession");
+    profOptions.forEach(opt => {
+        profSelect.append(`<option value="${opt}" ${opt === profession ? "selected" : ""}>${opt}</option>`);
+    });
+    row.find(".cell-profession").html(profSelect);
+
+    row.find(".cell-banned").html(`
+        <select class="edit-banned">
+            <option value="true" ${banned ? "selected" : ""}>true</option>
+            <option value="false" ${!banned ? "selected" : ""}>false</option>
+        </select>
+    `);
+});
+
+
+
+//---------------Збереження--------------------------
+$(document).on("click", ".save-btn", function () {
+    const row = $(this).closest("tr");
+    const id = row.data("id");
+
+    const levelValue = row.find(".edit-level").val();
+    const level = levelValue !== "" && !isNaN(levelValue) ? parseInt(levelValue) : null;
+
+    const birthdayValue = row.find(".edit-birthday").val();
+    const birthday = birthdayValue ? new Date(birthdayValue).getTime() : null;
+
+    const updatedData = {
+        name: row.find(".edit-name").val(),
+        title: row.find(".edit-title").val(),
+        race: row.find(".edit-race").val(),
+        profession: row.find(".edit-profession").val(),
+        level: level,
+        birthday: birthday,
+        banned: row.find(".edit-banned").val() === "true"
+    };
+
+    console.log("Sending data:", updatedData); // ✅ for debugging
+
+    $.ajax({
+        url: `${API_URL}/${id}`,
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(updatedData),
+        success: function () {
+            alert(`Player with ID ${id} was successfully updated.`);
+            fetchTotalPlayersCount().then(count => {
+                totalPlayers = count;
+                loadPlayers(currentPage);
+            });
+        },
+        error: function () {
+            alert(`Failed to update player with ID ${id}.`);
+        }
+    });
+});
+
+
+fetchTotalPlayersCount().then(count => {
+    totalPlayers = count;
+    loadPlayers(currentPage);
+});
+

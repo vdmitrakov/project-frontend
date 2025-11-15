@@ -30,20 +30,21 @@ public class PlayerService {
         return playerRepository.getAllCount();
     }
 
-    public Player createPlayer(String name, String title, Race race, Profession profession, long birthday, boolean banned, int level) {
+    public Player createPlayer(String name, String title, Race race, Profession profession, Long birthday, boolean banned, int level) {
         Player player = new Player();
         player.setName(name);
         player.setTitle(title);
         player.setRace(race);
         player.setProfession(profession);
-        player.setBirthday(new Date(birthday));
+        //player.setBirthday(new Date(birthday));
+        player.setBirthday(birthday);
         player.setBanned(banned);
         player.setLevel(level);
 
         return playerRepository.save(player);
     }
 
-    public Player updatePlayer(long id, String name, String title, Race race, Profession profession, Boolean banned) {
+    public Player updatePlayer(long id, String name, String title, Race race, Profession profession, Integer level, Long birthday, Boolean banned) {
         Player player = playerRepository.findById(id).orElse(null);
         if (isNull(player)) {
             return null;
@@ -72,6 +73,17 @@ public class PlayerService {
             player.setBanned(banned);
             needUpdate = true;
         }
+
+        if (nonNull(banned)) {
+            player.setLevel(level);
+            needUpdate = true;
+        }
+
+        if (nonNull(birthday)) {
+            player.setBirthday(birthday);
+            needUpdate = true;
+        }
+
 
         if (needUpdate) {
             playerRepository.update(player);

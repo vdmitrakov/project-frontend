@@ -12,4 +12,5 @@ public class PlayerInfo {
     public Integer level;
     public Long birthday;
     public Boolean banned;
+    public Object info;
 }

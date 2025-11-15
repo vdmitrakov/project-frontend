@@ -5,11 +5,27 @@
     <title>RPG Admin Panel</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="/css/my.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative&family=Uncial+Antiqua&family=MedievalSharp&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="img/lotr-emblem.png">
 </head>
 <body>
-<h1>RPG Admin Panel</h1>
+
+<h1 style="display: flex; align-items: center; justify-content: space-between;">
+    <span>RPG Admin Panel</span>
+    <img src="img/lotr-emblem.png" alt="Middle-earth Emblem" style="height: 240px;">
+</h1>
+
+
 
 <h2>Accounts List:</h2>
+<label for="pageSizeSelect">Show per page:</label>
+<select id="pageSizeSelect">
+    <option value="3">3</option>
+    <option value="5" selected>5</option>
+    <option value="10">10</option>
+    <option value="20">20</option>
+</select>
+<h2></h2>
 <table id="playersTable">
     <thead>
     <tr>
@@ -21,18 +37,14 @@
         <th>Level</th>
         <th>Birthday</th>
         <th>Banned</th>
+        <th>Edit</th>
+        <th>Delete</th>
     </tr>
     </thead>
     <tbody></tbody>
 </table>
 
-<label for="pageSizeSelect">Show per page:</label>
-<select id="pageSizeSelect">
-    <option value="3">3</option>
-    <option value="5" selected>5</option>
-    <option value="10">10</option>
-    <option value="20">20</option>
-</select>
+
 
 <div id="paginationControls"></div>
 

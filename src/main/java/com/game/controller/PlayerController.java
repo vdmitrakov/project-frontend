@@ -70,7 +70,7 @@ public class PlayerController {
         if (nonNull(info.name) && (info.name.isEmpty() || info.name.length() > 12)) return ResponseEntity.badRequest().build();
         if (nonNull(info.title) && info.title.length() > 30) return ResponseEntity.badRequest().build();
 
-        Player updated = playerService.updatePlayer(id, info.name, info.title, info.race, info.profession, info.banned);
+        Player updated = playerService.updatePlayer(id, info.name, info.title, info.race, info.profession, info.level, info.birthday, info.banned);
         return isNull(updated) ? ResponseEntity.notFound().build() : ResponseEntity.ok(toPlayerInfo(updated));
     }
 

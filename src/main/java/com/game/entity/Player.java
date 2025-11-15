@@ -70,9 +70,8 @@ public class Player {
         return birthday;
     }
 
-    public void setBirthday(Date birthday) {
-        this.birthday = birthday;
-    }
+    public void setBirthday(Long birthday) { this.birthday = new Date(birthday); }
+    //public void setBirthday(Date birthday) { this.birthday = birthday; }
 
     public Boolean getBanned() {
         return banned;
@@ -89,4 +88,6 @@ public class Player {
     public void setLevel(Integer level) {
         this.level = level;
     }
+
+
 }
